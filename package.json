@@ -1,0 +1,10 @@
+{
+  "name": "addon-test",
+  "version": "0.0.1",
+  "description": "Addon test",
+  "main": "test.js",
+  "dependencies": {
+    "bindings": "*",
+    "addon-layer": "*"
+  }
+}
