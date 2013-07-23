@@ -5,6 +5,6 @@
   "main": "test.js",
   "dependencies": {
     "bindings": "*",
-    "addon-layer": "*"
+    "addon-layer": "git://github.com/tjfontaine/node-addon-layer.git"
   }
 }

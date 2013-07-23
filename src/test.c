@@ -38,9 +38,9 @@ int test_foo(shim_ctx_t* ctx, size_t argc, shim_val_t** argv)
 int test_cb(shim_ctx_t* ctx, size_t argc, shim_val_t** argv)
 {
   shim_val_t* fn = argv[0];
-  shim_val_t* rval;
+  shim_val_t* rval = malloc(sizeof(shim_val_t*));
 
-  shim_CallFunctionValue(ctx, NULL, *fn, 0, NULL, &rval);
+  shim_CallFunctionValue(ctx, NULL, *fn, 0, NULL, rval);
 
   SHIM_SET_RVAL(ctx, argv, rval);
   return TRUE;
@@ -62,8 +62,8 @@ void cb_after(shim_ctx_t* ctx, shim_work_t* req, int status)
 {
   cb_baton_t* baton = container_of(req, cb_baton_t, req);
   shim_val_t* argv[] = { shim_NumberValue(baton->rval) };
-  shim_val_t* rval;
-  shim_CallFunctionValue(ctx, NULL, *baton->cb, 1, argv, &rval);
+  shim_val_t* rval = malloc(sizeof(shim_val_t*));
+  shim_CallFunctionValue(ctx, NULL, *baton->cb, 1, argv, rval);
   shim_RemoveValueRoot(ctx, baton->cb);
   free(baton);
 }
@@ -96,6 +96,12 @@ int test_weak(shim_ctx_t* ctx, size_t argc, shim_val_t** argv)
   return TRUE;
 }
 
+int test_str(shim_ctx_t* ctx, size_t argc, shim_val_t** argv)
+{
+  SHIM_SET_RVAL(ctx, argv, shim_NewStringCopyZ(ctx, "wtf"));
+  return TRUE;
+}
+
 int initialize(shim_ctx_t* ctx, shim_val_t* exports, shim_val_t* module)
 {
   shim_FunctionSpec funcs[] = {
@@ -104,6 +110,7 @@ int initialize(shim_ctx_t* ctx, shim_val_t* exports, shim_val_t* module)
     SHIM_FS_DEF(test_cb, 0),
     SHIM_FS_DEF(test_cb_async, 0),
     SHIM_FS_DEF(test_weak, 0),
+    SHIM_FS_DEF(test_str, 0),
     SHIM_FS_END,
   };
 
