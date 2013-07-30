@@ -14,37 +14,64 @@ var b = require('bindings')('addon_test');
 
 console.log(b);
 
-console.log("test_func ret", b.test_func(40, 44, "baz"));
-console.log("test_foo ret", b.test_foo("hello world"));
 
-console.log("test_cb ret", b.test_cb(function () {
-  _gc();
-  console.log("in cb");
-  return "barbarella";
-}));
+function test1() {
+  console.log("calling test_func");
+  console.log("test_func ret", b.test_func(40, 44, "baz"));
+}
 
-b.test_cb_async(function(foo) {
-  _gc();
-  console.log("asyncd", foo);
-  _gc();
-});
+function test2() {
+  console.log("test_foo ret", b.test_foo("hello world"));
+}
 
-console.log("tick");
+function test3() {
+  console.log("test_cb ret", b.test_cb(function () {
+    _gc();
+    console.log("in cb");
+    return "barbarella";
+  }));
+}
 
-_gc();
-_gc();
+function test4() {
+  console.log("calling into test_async");
 
-var a = {};
-a.weak = b.test_weak({a:42})
+  b.test_cb_async(function(foo) {
+    _gc();
+    console.log("asyncd", foo);
+    _gc();
+  });
 
-_gc();
-_gc();
+  console.log("tick");
+}
 
-setTimeout(function() {
-  console.log('clearing out weak', a.weak);
-  delete a.weak;
-  a.weak = null;
-  _gc();
-}, 0);
+function test5() {
+  var a = {};
+  a.weak = b.test_weak({a:42})
 
-console.log("test_str", b.test_str());
+  setTimeout(function() {
+    console.log('clearing out weak', a.weak);
+    delete a.weak;
+    a.weak = null;
+    _gc();
+  }, 0);
+}
+
+function test6() {
+  console.log("test_str", b.test_str());
+}
+
+function test7() {
+  var helloworld = new Buffer("hello world");
+  console.log("test_pass_buff", b.test_pass_buff(helloworld));
+}
+
+setInterval(function () {
+  test1();
+  test2();
+  test3();
+  //test4();
+  test5();
+  test6();
+  test7();
+}, 1000);
+
