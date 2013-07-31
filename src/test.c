@@ -20,6 +20,8 @@ int test_func(shim_ctx_t* ctx, shim_args_t* args)
   const char *str = shim_string_value(S);
   printf("we have an argument of %d %u %s\n", i, u, str);
 
+  shim_value_release(S);
+
   shim_args_set_rval(ctx, args, shim_integer_new(ctx, i));
   return TRUE;
 }
