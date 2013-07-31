@@ -34,7 +34,7 @@ int test_foo(shim_ctx_t* ctx, shim_args_t* args)
   const char *cstr = shim_string_value(str);
   printf("we got %s\n", cstr);
 
-  shim_value_release(cstr);
+  shim_value_release(str);
 
   shim_args_set_rval(ctx, args, shim_string_new_copy(ctx, "Goodbye Fool"));
   return TRUE;
