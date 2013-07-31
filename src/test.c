@@ -66,6 +66,8 @@ void cb_after(shim_ctx_t* ctx, shim_work_t* req, int status, cb_baton_t* baton)
   shim_val_t* argv[] = { shim_number_new(ctx, baton->rval) };
   shim_val_t* rval = malloc(sizeof(shim_val_t*));
   shim_func_call_val(ctx, NULL, baton->cb, 1, argv, rval);
+  shim_value_release(argv[0]);
+  shim_value_release(rval);
   shim_persistent_dispose(baton->cb);
   free(baton);
 }
