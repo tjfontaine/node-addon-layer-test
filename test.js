@@ -66,12 +66,14 @@ function test7() {
 }
 
 setInterval(function () {
+  _gc();
   test1();
   test2();
   test3();
-  //test4();
+  test4();
   test5();
   test6();
   test7();
+  _gc();
 }, 1000);
 
