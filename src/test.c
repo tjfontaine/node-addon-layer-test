@@ -18,9 +18,10 @@ int test_func(shim_ctx_t* ctx, shim_args_t* args)
     SHIM_TYPE_UNKNOWN);
 
   const char *str = shim_string_value(S);
-  printf("we have an argument of %d %u %s\n", i, u, str);
+  printf("we have an argument of %d %u %s -- %p\n", i, u, str, str);
 
   shim_value_release(S);
+  free(str);
 
   shim_args_set_rval(ctx, args, shim_integer_new(ctx, i));
   return TRUE;
@@ -37,6 +38,7 @@ int test_foo(shim_ctx_t* ctx, shim_args_t* args)
   printf("we got %s\n", cstr);
 
   shim_value_release(str);
+  free(cstr);
 
   shim_args_set_rval(ctx, args, shim_string_new_copy(ctx, "Goodbye Fool"));
   return TRUE;
