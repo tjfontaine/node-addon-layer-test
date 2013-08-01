@@ -158,6 +158,12 @@ int test_cb_null(shim_ctx_t* ctx, shim_args_t* args)
   return TRUE;
 }
 
+int test_except(shim_ctx_t* ctx, shim_args_t* args)
+{
+  shim_throw_error(ctx, "Something went wrong");
+  return FALSE;
+}
+
 int initialize(shim_ctx_t* ctx, shim_val_t* exports, shim_val_t* module)
 {
   shim_fspec_t funcs[] = {
@@ -171,6 +177,7 @@ int initialize(shim_ctx_t* ctx, shim_val_t* exports, shim_val_t* module)
     SHIM_FS(test_undefined),
     SHIM_FS(test_null),
     SHIM_FS(test_cb_null),
+    SHIM_FS(test_except),
     SHIM_FS_END,
   };
 

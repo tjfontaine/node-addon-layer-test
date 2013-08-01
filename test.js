@@ -97,3 +97,31 @@ test('test_cb_null', function(t) {
     t.end();
   });
 });
+
+test('test_cb_except', function(t) {
+  var threw = false;
+  try {
+    b.test_cb(function() {
+      throw new Error("we errored");
+    });
+  } catch (e) {
+    threw = true;
+    t.strictEqual(e.message, 'we errored');
+  } finally {
+    t.strictEqual(threw, true);
+    t.end();
+  }
+});
+
+test('test_except', function(t) {
+  var threw = false;
+  try {
+    b.test_except();
+  } catch(e) {
+    threw = true;
+    t.strictEqual(e.message, 'Something went wrong');
+  } finally {
+    t.strictEqual(threw, true);
+    t.end();
+  }
+});
