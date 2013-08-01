@@ -6,7 +6,7 @@
 
 int test_func(shim_ctx_t* ctx, shim_args_t* args)
 {
-  printf("we're in test_func, argc %zu\n", shim_args_length(args));
+  //printf("we're in test_func, argc %zu\n", shim_args_length(args));
 
   int32_t i;
   uint32_t u;
@@ -18,7 +18,7 @@ int test_func(shim_ctx_t* ctx, shim_args_t* args)
     SHIM_TYPE_UNKNOWN);
 
   const char *str = shim_string_value(S);
-  printf("we have an argument of %d %u %s -- %p\n", i, u, str, str);
+  //printf("we have an argument of %d %u %s -- %p\n", i, u, str, str);
 
   shim_value_release(S);
   free(str);
@@ -29,13 +29,13 @@ int test_func(shim_ctx_t* ctx, shim_args_t* args)
 
 int test_foo(shim_ctx_t* ctx, shim_args_t* args)
 {
-  printf("we're in test_foo\n");
+  //printf("we're in test_foo\n");
 
   shim_val_t* str = malloc(sizeof(shim_val_t*));
   shim_unpack(ctx, args, SHIM_TYPE_STRING, &str, SHIM_TYPE_UNKNOWN);
 
   const char *cstr = shim_string_value(str);
-  printf("we got %s\n", cstr);
+  //printf("we got %s\n", cstr);
 
   shim_value_release(str);
   free(cstr);
@@ -62,13 +62,13 @@ typedef struct cb_baton_s {
 
 void cb_work(shim_work_t* req, cb_baton_t* baton)
 {
-  printf("in cb_work\n");
+  //printf("in cb_work\n");
   baton->rval = 42;
 }
 
 void cb_after(shim_ctx_t* ctx, shim_work_t* req, int status, cb_baton_t* baton)
 {
-  printf("in cb_after\n");
+  //printf("in cb_after\n");
   shim_val_t* argv[] = { shim_number_new(ctx, baton->rval) };
   shim_val_t* rval = malloc(sizeof(shim_val_t*));
   shim_func_call_val(ctx, NULL, baton->cb, 1, argv, rval);
@@ -80,13 +80,13 @@ void cb_after(shim_ctx_t* ctx, shim_work_t* req, int status, cb_baton_t* baton)
 
 int test_cb_async(shim_ctx_t* ctx, shim_args_t* args)
 {
-  printf("in cb_async\n");
+  //printf("in cb_async\n");
   cb_baton_t* baton = malloc(sizeof(cb_baton_t));
   shim_val_t* fn = shim_persistent_new(ctx, shim_args_get(args, 0));
-  printf("made persistent\n");
+  //printf("made persistent\n");
   baton->cb = fn;
   shim_queue_work((shim_work_cb)cb_work, (shim_after_work)cb_after, baton);
-  printf("queued work\n");
+  //printf("queued work\n");
   return TRUE;
 }
 
@@ -96,7 +96,7 @@ void weak_cb(shim_val_t* val, void* data)
 {
   int32_t i;
   shim_unpack_type(NULL, val, SHIM_TYPE_INT32, &i);
-  printf("WeakCB %d %p %s\n", i, data, (const char*)data);
+  //printf("WeakCB %d %p %s\n", i, data, (const char*)data);
   shim_persistent_dispose(val);
 }
 
@@ -119,8 +119,8 @@ int test_pass_buff(shim_ctx_t* ctx, shim_args_t* args)
   shim_val_t* buf = shim_args_get(args, 0);
   size_t len = shim_buffer_length(buf);
 
-  printf("test_pass_buff incoming buffer length %zu should be %zu",
-    len, strlen("hello world"));
+  //printf("test_pass_buff incoming buffer length %zu should be %zu",
+  //  len, strlen("hello world"));
 
   char* data = shim_buffer_value(buf);
 
@@ -176,7 +176,7 @@ int initialize(shim_ctx_t* ctx, shim_val_t* exports, shim_val_t* module)
 
   shim_obj_set_funcs(ctx, exports, funcs);
   
-  printf("we're initializing the c side\n");
+  //printf("we're initializing the c side\n");
   return TRUE;
 }
 
