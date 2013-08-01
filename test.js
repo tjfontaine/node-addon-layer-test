@@ -65,6 +65,20 @@ function test7() {
   console.log("test_pass_buff", b.test_pass_buff(helloworld));
 }
 
+function test8() {
+  console.log("test_undefined", b.test_undefined());
+}
+
+function test9() {
+  console.log("test_null", b.test_null());
+}
+
+function test10() {
+  console.log("test_cb_null", b.test_cb_null(function(arg) {
+    console.log("test_cb_null arg", arg);
+  }));
+}
+
 setInterval(function () {
   _gc();
   test1();
@@ -74,6 +88,9 @@ setInterval(function () {
   test5();
   test6();
   test7();
+  test8();
+  test9();
+  test10();
   _gc();
 }, 1000);
 

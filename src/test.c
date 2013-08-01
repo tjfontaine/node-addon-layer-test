@@ -131,6 +131,33 @@ int test_pass_buff(shim_ctx_t* ctx, shim_args_t* args)
   return TRUE;
 }
 
+int test_undefined(shim_ctx_t* ctx, shim_args_t* args)
+{
+  shim_args_set_rval(ctx, args, shim_undefined());
+  return TRUE;
+}
+
+int test_null(shim_ctx_t* ctx, shim_args_t* args)
+{
+  shim_args_set_rval(ctx, args, shim_null());
+  return TRUE;
+}
+
+int test_cb_null(shim_ctx_t* ctx, shim_args_t* args)
+{
+  shim_val_t* fn = shim_args_get(args, 0);
+  shim_val_t* rval = malloc(sizeof(shim_val_t*));
+
+  shim_val_t* argv[] = {
+    shim_null(),
+  };
+
+  shim_func_call_val(ctx, NULL, fn, 1, argv, rval);
+
+  shim_args_set_rval(ctx, args, rval);
+  return TRUE;
+}
+
 int initialize(shim_ctx_t* ctx, shim_val_t* exports, shim_val_t* module)
 {
   shim_fspec_t funcs[] = {
@@ -141,6 +168,9 @@ int initialize(shim_ctx_t* ctx, shim_val_t* exports, shim_val_t* module)
     SHIM_FS(test_weak),
     SHIM_FS(test_str),
     SHIM_FS(test_pass_buff),
+    SHIM_FS(test_undefined),
+    SHIM_FS(test_null),
+    SHIM_FS(test_cb_null),
     SHIM_FS_END,
   };
 
