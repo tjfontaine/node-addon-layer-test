@@ -11,11 +11,12 @@ int test_func(shim_ctx_t* ctx, shim_args_t* args)
   int32_t i;
   uint32_t u;
   shim_val_t* S = malloc(sizeof(shim_val_t*));
-  shim_unpack(ctx, args,
+  if(!shim_unpack(ctx, args,
     SHIM_TYPE_INT32, &i,
     SHIM_TYPE_UINT32, &u,
     SHIM_TYPE_STRING, &S,
-    SHIM_TYPE_UNKNOWN);
+    SHIM_TYPE_UNKNOWN))
+    return FALSE;
 
   const char *str = shim_string_value(S);
   //printf("we have an argument of %d %u %s -- %p\n", i, u, str, str);

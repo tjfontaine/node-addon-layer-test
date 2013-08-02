@@ -26,9 +26,21 @@ function test(name, cb) {
 }
 
 test('test_func', function(t) {
-  console.log("test_func ret", b.test_func(40, 44, "baz"));
   t.strictEqual(40, b.test_func(40, 44, 'baz'));
   t.end();
+});
+
+test('test_func_args', function(t) {
+  var threw = false;
+  try {
+    b.test_func('foo', 'bar', 123);
+  } catch(e) {
+    threw = true;
+    t.strictEqual(e.message, "Argument 0 not of type SHIM_TYPE_INT32");
+  } finally {
+    t.strictEqual(threw, true);
+    t.end();
+  }
 });
 
 test('test_foo', function(t) {
