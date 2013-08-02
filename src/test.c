@@ -50,7 +50,8 @@ int test_cb(shim_ctx_t* ctx, shim_args_t* args)
   shim_val_t* fn = shim_args_get(args, 0);
   shim_val_t* rval = malloc(sizeof(shim_val_t*));
 
-  shim_func_call_val(ctx, NULL, fn, 0, NULL, rval);
+  if(!shim_func_call_val(ctx, NULL, fn, 0, NULL, rval))
+    return FALSE;
 
   shim_args_set_rval(ctx, args, rval);
   return TRUE;
@@ -58,6 +59,7 @@ int test_cb(shim_ctx_t* ctx, shim_args_t* args)
 
 typedef struct cb_baton_s {
   shim_val_t* cb;
+  shim_val_t* obj;
   int rval;
 } cb_baton_t;
 
@@ -72,10 +74,14 @@ void cb_after(shim_ctx_t* ctx, shim_work_t* req, int status, cb_baton_t* baton)
   //printf("in cb_after\n");
   shim_val_t* argv[] = { shim_number_new(ctx, baton->rval) };
   shim_val_t* rval = malloc(sizeof(shim_val_t*));
-  shim_func_call_val(ctx, NULL, baton->cb, 1, argv, rval);
+  shim_make_callback_val(ctx, baton->obj, baton->cb, 1, argv, rval);
   shim_value_release(argv[0]);
   shim_value_release(rval);
   shim_persistent_dispose(baton->cb);
+
+  if (baton->obj != NULL)
+    shim_persistent_dispose(baton->obj);
+
   free(baton);
 }
 
@@ -84,6 +90,12 @@ int test_cb_async(shim_ctx_t* ctx, shim_args_t* args)
   //printf("in cb_async\n");
   cb_baton_t* baton = malloc(sizeof(cb_baton_t));
   shim_val_t* fn = shim_persistent_new(ctx, shim_args_get(args, 0));
+
+  if (shim_args_length(args) > 1)
+    baton->obj = shim_persistent_new(ctx, shim_args_get(args, 1));
+  else
+    baton->obj = NULL;
+
   //printf("made persistent\n");
   baton->cb = fn;
   shim_queue_work((shim_work_cb)cb_work, (shim_after_work)cb_after, baton);

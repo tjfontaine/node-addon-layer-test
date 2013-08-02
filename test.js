@@ -137,3 +137,18 @@ test('test_except', function(t) {
     t.end();
   }
 });
+
+test('test_cb_async_except', function(t) {
+  var msg = "We Errored";
+  var d = require('domain').create();
+  d.on('error', function (err) {
+    t.strictEqual(err.message, msg);
+    t.end();
+  });
+  d.run(function() {
+    var obj = { domain: d };
+    b.test_cb_async(function() {
+      throw new Error(msg);
+    }, obj);
+  })
+});
