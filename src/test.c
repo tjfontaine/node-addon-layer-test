@@ -1,6 +1,7 @@
-#include "stdlib.h"
-#include "stdio.h"
-#include "string.h"
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <assert.h>
 
 #include "shim.h"
 
@@ -130,12 +131,28 @@ int test_str(shim_ctx_t* ctx, shim_args_t* args)
 int test_pass_buff(shim_ctx_t* ctx, shim_args_t* args)
 {
   shim_val_t* buf = shim_args_get(args, 0);
+
+  if (!shim_value_is(buf, SHIM_TYPE_BUFFER)) {
+    shim_throw_error(ctx, "buf is not a buffer");
+    return FALSE;
+  }
+
+  char* odata;
+
+  if (!shim_unpack_type(ctx, buf, SHIM_TYPE_BUFFER, &odata))
+    return FALSE;
+
   size_t len = shim_buffer_length(buf);
 
   //printf("test_pass_buff incoming buffer length %zu should be %zu",
   //  len, strlen("hello world"));
 
   char* data = shim_buffer_value(buf);
+
+  if (odata != data) {
+    shim_throw_error(ctx, "odata doesn't match data");
+    return FALSE;
+  }
 
   shim_val_t* enc = shim_string_new_copyn(ctx, data, len);
 

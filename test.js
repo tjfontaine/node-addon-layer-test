@@ -90,6 +90,9 @@ test('test_pass_buff', function(t) {
   var helloworld = new Buffer(contents);
   var ret = b.test_pass_buff(helloworld);
   t.strictEqual(ret, contents);
+  t.throws(function() {
+    b.test_pass_buff('buf');
+  });
   t.end();
 })
 
