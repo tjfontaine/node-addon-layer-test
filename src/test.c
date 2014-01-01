@@ -79,7 +79,11 @@ void cb_after(shim_ctx_t* ctx, shim_work_t* req, int status, cb_baton_t* baton)
   shim_val_t* obj;
   shim_val_t* cb;
 
-  shim_persistent_to_val(ctx, baton->obj, &obj);
+  if (baton->obj != NULL)
+    shim_persistent_to_val(ctx, baton->obj, &obj);
+  else
+    obj = NULL;
+
   shim_persistent_to_val(ctx, baton->cb, &cb);
 
   shim_make_callback_val(ctx, obj, cb, 1, argv, rval);
