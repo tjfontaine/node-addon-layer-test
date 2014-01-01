@@ -59,8 +59,8 @@ int test_cb(shim_ctx_t* ctx, shim_args_t* args)
 }
 
 typedef struct cb_baton_s {
-  shim_val_t* cb;
-  shim_val_t* obj;
+  shim_persistent_t* cb;
+  shim_persistent_t* obj;
   int rval;
 } cb_baton_t;
 
@@ -75,9 +75,18 @@ void cb_after(shim_ctx_t* ctx, shim_work_t* req, int status, cb_baton_t* baton)
   //printf("in cb_after\n");
   shim_val_t* argv[] = { shim_number_new(ctx, baton->rval) };
   shim_val_t* rval = shim_value_alloc();
-  shim_make_callback_val(ctx, baton->obj, baton->cb, 1, argv, rval);
+
+  shim_val_t* obj;
+  shim_val_t* cb;
+
+  shim_persistent_to_val(ctx, baton->obj, &obj);
+  shim_persistent_to_val(ctx, baton->cb, &cb);
+
+  shim_make_callback_val(ctx, obj, cb, 1, argv, rval);
+
   shim_value_release(argv[0]);
   shim_value_release(rval);
+
   shim_persistent_dispose(baton->cb);
 
   if (baton->obj != NULL)
@@ -90,7 +99,7 @@ int test_cb_async(shim_ctx_t* ctx, shim_args_t* args)
 {
   //printf("in cb_async\n");
   cb_baton_t* baton = malloc(sizeof(cb_baton_t));
-  shim_val_t* fn = shim_persistent_new(ctx, shim_args_get(args, 0));
+  shim_persistent_t* fn = shim_persistent_new(ctx, shim_args_get(args, 0));
 
   if (shim_args_length(args) > 1)
     baton->obj = shim_persistent_new(ctx, shim_args_get(args, 1));
@@ -106,19 +115,22 @@ int test_cb_async(shim_ctx_t* ctx, shim_args_t* args)
 
 const char* WHATWHAT = "WHAT WHAT";
 
-void weak_cb(shim_val_t* val, void* data)
+void weak_cb(shim_persistent_t* pval, void* data)
 {
   int32_t i;
+  shim_val_t* val;
+  shim_persistent_to_val(NULL, pval, &val);
   shim_unpack_type(NULL, val, SHIM_TYPE_INT32, &i);
   //printf("WeakCB %d %p %s\n", i, data, (const char*)data);
-  shim_persistent_dispose(val);
+  shim_persistent_dispose(pval);
 }
 
 int test_weak(shim_ctx_t* ctx, shim_args_t* args)
 {
-  shim_val_t* obj = shim_persistent_new(ctx, shim_args_get(args, 0));
+  shim_val_t* val = shim_args_get(args, 0);
+  shim_persistent_t* obj = shim_persistent_new(ctx, val);
   shim_obj_make_weak(ctx, obj, (void*)WHATWHAT, weak_cb);
-  shim_args_set_rval(ctx, args, obj);
+  shim_args_set_rval(ctx, args, val);
   return TRUE;
 }
 
