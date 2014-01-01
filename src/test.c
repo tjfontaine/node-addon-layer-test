@@ -11,7 +11,7 @@ int test_func(shim_ctx_t* ctx, shim_args_t* args)
 
   int32_t i;
   uint32_t u;
-  shim_val_t* S = malloc(sizeof(shim_val_t*));
+  shim_val_t* S = shim_value_alloc();
   if(!shim_unpack(ctx, args,
     SHIM_TYPE_INT32, &i,
     SHIM_TYPE_UINT32, &u,
@@ -19,7 +19,7 @@ int test_func(shim_ctx_t* ctx, shim_args_t* args)
     SHIM_TYPE_UNKNOWN))
     return FALSE;
 
-  const char *str = shim_string_value(S);
+  char *str = shim_string_value(S);
   //printf("we have an argument of %d %u %s -- %p\n", i, u, str, str);
 
   shim_value_release(S);
@@ -33,10 +33,10 @@ int test_foo(shim_ctx_t* ctx, shim_args_t* args)
 {
   //printf("we're in test_foo\n");
 
-  shim_val_t* str = malloc(sizeof(shim_val_t*));
+  shim_val_t* str = shim_value_alloc();
   shim_unpack(ctx, args, SHIM_TYPE_STRING, &str, SHIM_TYPE_UNKNOWN);
 
-  const char *cstr = shim_string_value(str);
+  char *cstr = shim_string_value(str);
   //printf("we got %s\n", cstr);
 
   shim_value_release(str);
@@ -49,7 +49,7 @@ int test_foo(shim_ctx_t* ctx, shim_args_t* args)
 int test_cb(shim_ctx_t* ctx, shim_args_t* args)
 {
   shim_val_t* fn = shim_args_get(args, 0);
-  shim_val_t* rval = malloc(sizeof(shim_val_t*));
+  shim_val_t* rval = shim_value_alloc();
 
   if(!shim_func_call_val(ctx, NULL, fn, 0, NULL, rval))
     return FALSE;
@@ -74,7 +74,7 @@ void cb_after(shim_ctx_t* ctx, shim_work_t* req, int status, cb_baton_t* baton)
 {
   //printf("in cb_after\n");
   shim_val_t* argv[] = { shim_number_new(ctx, baton->rval) };
-  shim_val_t* rval = malloc(sizeof(shim_val_t*));
+  shim_val_t* rval = shim_value_alloc();
   shim_make_callback_val(ctx, baton->obj, baton->cb, 1, argv, rval);
   shim_value_release(argv[0]);
   shim_value_release(rval);
@@ -176,7 +176,7 @@ int test_null(shim_ctx_t* ctx, shim_args_t* args)
 int test_cb_null(shim_ctx_t* ctx, shim_args_t* args)
 {
   shim_val_t* fn = shim_args_get(args, 0);
-  shim_val_t* rval = malloc(sizeof(shim_val_t*));
+  shim_val_t* rval = shim_value_alloc();
 
   shim_val_t* argv[] = {
     shim_null(),
