@@ -119,12 +119,12 @@ int test_cb_async(shim_ctx_t* ctx, shim_args_t* args)
 
 const char* WHATWHAT = "WHAT WHAT";
 
-void weak_cb(shim_persistent_t* pval, void* data)
+void weak_cb(shim_ctx_t* ctx, shim_persistent_t* pval, void* data)
 {
   int32_t i;
   shim_val_t* val;
-  shim_persistent_to_val(NULL, pval, &val);
-  shim_unpack_type(NULL, val, SHIM_TYPE_INT32, &i);
+  shim_persistent_to_val(ctx, pval, &val);
+  shim_unpack_type(ctx, val, SHIM_TYPE_INT32, &i);
   //printf("WeakCB %d %p %s\n", i, data, (const char*)data);
   shim_persistent_dispose(pval);
 }
