@@ -155,3 +155,9 @@ test('test_cb_async_except', function(t) {
     }, obj);
   })
 });
+
+test('test_external', function(t) {
+  var handle = b.test_make_external();
+  b.test_get_external(handle);
+  t.end();
+});

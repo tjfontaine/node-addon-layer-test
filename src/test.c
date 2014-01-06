@@ -11,13 +11,15 @@ int test_func(shim_ctx_t* ctx, shim_args_t* args)
 
   int32_t i;
   uint32_t u;
-  shim_val_t* S = shim_value_alloc();
+  shim_val_t* S = NULL;
+  //printf("S location %p, addr %p\n", &S, S);
   if(!shim_unpack(ctx, args,
     SHIM_TYPE_INT32, &i,
     SHIM_TYPE_UINT32, &u,
     SHIM_TYPE_STRING, &S,
     SHIM_TYPE_UNKNOWN))
     return FALSE;
+  //printf("S location %p, addr %p\n", &S, S);
 
   char *str = shim_string_value(S);
   //printf("we have an argument of %d %u %s -- %p\n", i, u, str, str);
@@ -33,7 +35,7 @@ int test_foo(shim_ctx_t* ctx, shim_args_t* args)
 {
   //printf("we're in test_foo\n");
 
-  shim_val_t* str = shim_value_alloc();
+  shim_val_t* str;
   shim_unpack(ctx, args, SHIM_TYPE_STRING, &str, SHIM_TYPE_UNKNOWN);
 
   char *cstr = shim_string_value(str);
@@ -49,9 +51,9 @@ int test_foo(shim_ctx_t* ctx, shim_args_t* args)
 int test_cb(shim_ctx_t* ctx, shim_args_t* args)
 {
   shim_val_t* fn = shim_args_get(args, 0);
-  shim_val_t* rval = shim_value_alloc();
+  shim_val_t* rval;
 
-  if(!shim_func_call_val(ctx, NULL, fn, 0, NULL, rval))
+  if(!shim_func_call_val(ctx, NULL, fn, 0, NULL, &rval))
     return FALSE;
 
   shim_args_set_rval(ctx, args, rval);
@@ -74,7 +76,7 @@ void cb_after(shim_ctx_t* ctx, shim_work_t* req, int status, cb_baton_t* baton)
 {
   //printf("in cb_after\n");
   shim_val_t* argv[] = { shim_number_new(ctx, baton->rval) };
-  shim_val_t* rval = shim_value_alloc();
+  shim_val_t* rval;
 
   shim_val_t* obj;
   shim_val_t* cb;
@@ -86,7 +88,7 @@ void cb_after(shim_ctx_t* ctx, shim_work_t* req, int status, cb_baton_t* baton)
 
   shim_persistent_to_val(ctx, baton->cb, &cb);
 
-  shim_make_callback_val(ctx, obj, cb, 1, argv, rval);
+  shim_make_callback_val(ctx, obj, cb, 1, argv, &rval);
 
   shim_value_release(argv[0]);
   shim_value_release(rval);
@@ -192,13 +194,13 @@ int test_null(shim_ctx_t* ctx, shim_args_t* args)
 int test_cb_null(shim_ctx_t* ctx, shim_args_t* args)
 {
   shim_val_t* fn = shim_args_get(args, 0);
-  shim_val_t* rval = shim_value_alloc();
+  shim_val_t* rval;
 
   shim_val_t* argv[] = {
     shim_null(),
   };
 
-  shim_func_call_val(ctx, NULL, fn, 1, argv, rval);
+  shim_func_call_val(ctx, NULL, fn, 1, argv, &rval);
 
   shim_args_set_rval(ctx, args, rval);
   return TRUE;
@@ -208,6 +210,42 @@ int test_except(shim_ctx_t* ctx, shim_args_t* args)
 {
   shim_throw_error(ctx, "Something went wrong");
   return FALSE;
+}
+
+int test_make_external(shim_ctx_t* ctx, shim_args_t* args)
+{
+  shim_val_t* e = shim_external_new(ctx, &test_make_external);
+  shim_args_set_rval(ctx, args, e);
+  return TRUE;
+}
+
+int test_get_external(shim_ctx_t* ctx, shim_args_t* args)
+{
+  shim_val_t* e = shim_args_get(args, 0);
+  shim_bool_t ret = shim_value_is(e, SHIM_TYPE_EXTERNAL);
+
+  if (!ret) {
+    shim_throw_error(ctx, "argument 0 is not SHIM_TYPE_EXTERNAL");
+    return ret;
+  }
+
+  void* data;
+
+  ret = shim_unpack_type(ctx, e, SHIM_TYPE_EXTERNAL, &data);
+
+  if (!ret) {
+    shim_throw_error(ctx, "Failed to unpack external");
+    return ret;
+  }
+
+  if (data != &test_make_external) {
+    shim_throw_error(ctx, "Data and Pointer don't match, data %p -- expected %p", data, &test_make_external);
+    return FALSE;
+  } else {
+    //fprintf(stderr, "Data and Pointer match -- data %p expected %p\n", data, &test_make_external);
+  }
+
+  return TRUE;
 }
 
 int initialize(shim_ctx_t* ctx, shim_val_t* exports, shim_val_t* module)
@@ -224,6 +262,8 @@ int initialize(shim_ctx_t* ctx, shim_val_t* exports, shim_val_t* module)
     SHIM_FS(test_null),
     SHIM_FS(test_cb_null),
     SHIM_FS(test_except),
+    SHIM_FS(test_make_external),
+    SHIM_FS(test_get_external),
     SHIM_FS_END,
   };
 
