@@ -11,7 +11,7 @@ if (!/v0.8/.test(process.version)) {
 }
 
 var tt = require('tt');
-var b = require('bindings')('addon_test');
+var b = require('bindings')('shim');
 
 function test(name, cb) {
   return tt(name, function(t) {

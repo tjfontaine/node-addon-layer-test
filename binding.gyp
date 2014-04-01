@@ -4,7 +4,7 @@
   },
   'targets': [
     {
-      'target_name': 'addon_test',
+      'target_name': 'shim',
       'dependencies': [ '<(node_addon)/binding.gyp:addon-layer', ],
       'include_dirs': [ '<(node_addon)/include', ],
       'sources': [ 'src/test.c' ],
